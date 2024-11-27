@@ -56,27 +56,17 @@ def plot_history(history):
     loss = history.history['loss']
     val_loss = history.history['val_loss']
     epochs = range(1, len(accuracy) + 1)
-
-    # Plot Accuracy
     plt.figure(figsize=(12, 5))
-
     plt.subplot(1, 2, 1)
-    plt.plot(epochs, accuracy, label='Training Accuracy', marker='o')
-    plt.plot(epochs, val_accuracy, label='Validation Accuracy', marker='o')
-    plt.title('Training and Validation Accuracy')
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
+    plt.plot(epochs, accuracy, label='Training', marker='o')
+    plt.plot(epochs, val_accuracy, label='Validation', marker='o')
+    plt.title('Accuracy')
     plt.legend()
-
-    # Plot Loss
     plt.subplot(1, 2, 2)
-    plt.plot(epochs, loss, label='Training Loss', marker='o')
-    plt.plot(epochs, val_loss, label='Validation Loss', marker='o')
-    plt.title('Training and Validation Loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+    plt.plot(epochs, loss, label='Training', marker='o')
+    plt.plot(epochs, val_loss, label='Validation', marker='o')
+    plt.title('Loss')
     plt.legend()
-
     plt.tight_layout()
     plt.show()
 
