@@ -36,11 +36,7 @@ def create_cnn(input_shape):
     model = Sequential([
         Conv2D(32, (3, 3), activation="relu", input_shape=input_shape),
         MaxPooling2D(pool_size=(2, 2)),
-        Conv2D(64, (3, 3), activation="relu"),
-        MaxPooling2D(pool_size=(2, 2)),
         Flatten(),
-        Dense(128, activation="relu"),
-        Dropout(0.5),
         Dense(1, activation="sigmoid")
     ])
 
@@ -72,8 +68,9 @@ def plot_history(history):
 
 
 if __name__ == "__main__":
-    pretrain_folder = "../dataset/pretrain"
-    labels_csv = "../dataset/labels.csv"
+    pretrain_folder = "../dataset/pretrain_gray"
+    labels_csv = "../dataset/labels_gray" \
+                 ".csv"
 
     X, y = load_data(pretrain_folder, labels_csv)
 
