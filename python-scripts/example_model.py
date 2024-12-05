@@ -69,8 +69,7 @@ def plot_history(history):
 
 def main():
     pretrain_folder = "../dataset/pretrain_gray"
-    labels_csv = "../dataset/labels_gray" \
-                 ".csv"
+    labels_csv = "../dataset/labels_gray.csv"
 
     X, y = load_data(pretrain_folder, labels_csv)
 
