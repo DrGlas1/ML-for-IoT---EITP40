@@ -10,9 +10,9 @@ image_folder = "../dataset/pretrain_gray"
 label_file = "../dataset/labels_gray.csv"
 output_file = "../model/data.h"
 IMAGE_SIZE = (144, 172)
-TRAIN_RATIO = 0.75
+TRAIN_RATIO = 0.7
 VAL_RATIO = 0.2
-TEST_RATIO = 0.05
+TEST_RATIO = 0.1
 EPOCHS = 30
 INPUT_SIZE = 75
 
