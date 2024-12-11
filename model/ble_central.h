@@ -47,33 +47,15 @@ void setupBLE() {
   BLE.advertise();
 }
 
-int turn;
-
-void send_iteration_data() {
-  turn = 1; // Start over
-  bleData.turn = turn;
-}
-
 void loopBLE() {
   BLE.poll();
-  if (!BLE.central()) return;
+  if (!BLE.central()) {
+    return;
+  }
 
   if (writeCharacteristic.written()) {
-    int8_t receivedTurn = writeCharacteristic[0];
-
-    // -1 means connection established, send weights, no aggregation since nothing received
-    if (receivedTurn == -1) {
-      send_iteration_data();
-      return;
-    }
-    Serial.print("Received turn: ");
-    Serial.println(receivedTurn);
-
-    // Leader needs to do something
-    if (receivedTurn == 0) {
       writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
-      bleData.turn = ++turn;
       do_training();
-    }
+      readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
   }
 }

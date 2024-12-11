@@ -4,7 +4,6 @@
 
 typedef struct __attribute__( ( packed ) )
 {
-  int8_t turn;
   float w[TODO];
 } ble_data_t;
 

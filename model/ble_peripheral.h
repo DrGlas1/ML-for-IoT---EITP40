@@ -13,10 +13,8 @@ void loopPeripheral() {
     if (readCharacteristic.valueUpdated()) {
       // Fetch from peripheral
       readCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
-      if (bleData.turn == 1) {
-        // Should train on received data
-        do_training();
-      }
+      do_training();
+      writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
     }
   }
 }
@@ -76,7 +74,6 @@ void loopBLE() {
 
   if (peripheral) {
     // discovered a peripheral, print out address, local name, and advertised service
-
     if (peripheral.localName() != "Leader") {
       return;
     }

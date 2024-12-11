@@ -82,8 +82,6 @@ void setup() {
   setupNN(WeightBiasPtr);  // CREATES THE NETWORK BASED ON NN_def[]
   Serial.print("The accuracy before training");
   printAccuracy();
-
-  Serial.println("Use the on-shield button to start and stop the loop code ");
   setupBLE();
 }
 
