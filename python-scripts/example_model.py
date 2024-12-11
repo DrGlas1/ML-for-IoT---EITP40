@@ -67,10 +67,9 @@ def plot_history(history):
     plt.show()
 
 
-if __name__ == "__main__":
+def main():
     pretrain_folder = "../dataset/pretrain_gray"
-    labels_csv = "../dataset/labels_gray" \
-                 ".csv"
+    labels_csv = "../dataset/labels_gray.csv"
 
     X, y = load_data(pretrain_folder, labels_csv)
 
@@ -84,3 +83,7 @@ if __name__ == "__main__":
     loss, accuracy = model.evaluate(X_validation, y_validation)
     print(f"Performance: loss = {loss}, accuracy = {accuracy}")
     plot_history(history)
+
+
+if __name__ == "__main__":
+    main()
