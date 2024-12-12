@@ -7,6 +7,7 @@
 #define BLE_NBR_WEIGHTS 12
 #define DYN_NBR_WEIGHTS calcTotalWeightsBias()
 #define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
+#define DEBUG_BLE 1
 
 typedef struct __attribute__( ( packed ) )
 {
@@ -14,4 +15,17 @@ typedef struct __attribute__( ( packed ) )
   float w[BLE_NBR_WEIGHTS];
 } ble_data_t;
 
-ble_data_t bleData;
+void printBLE(ble_data_t bleData, bool sending) {
+#if DEBUG_BLE
+    if(sending) Serial.println("Sending values: ");
+    else Serial.println("Received values: ");
+    Serial.println("Batch id: ");
+    Serial.print(bleData.batch_id);
+    Serial.print("Weights: ");
+    for (int i = 0; i < BLE_NBR_WEIGHTS; i++) {
+        Serial.print(bleData.w[i]);
+        Serial.print(" ");
+    }
+    Serial.println();
+#endif
+}

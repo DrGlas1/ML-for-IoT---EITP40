@@ -4,6 +4,7 @@
 void do_training();
 void aggregate_weights();
 static float* dyn_weights;
+static ble_data_t bleData;
 
 static BLEService weightsService(READ_UUID);
 static BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
@@ -45,6 +46,7 @@ void setupBLE(float* wbptr) {
   // set the initial value for the characeristic:
   writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
   readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+  printBLE(bleData, true);
 
   // start advertising
   BLE.advertise();
@@ -55,6 +57,7 @@ static void send_data() {
     bleData.batch_id = i;
     memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(float));
     readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+    printBLE(bleData, true);
   }
 }
 
@@ -70,6 +73,7 @@ void loopBLE() {
 
   if (writeCharacteristic.written()) {
       writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
+      printBLE(bleData, false);
       store_incoming_weights();
       if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
         send_data();
