@@ -7,7 +7,7 @@
 #define fRAND ( rand()*1.0/RAND_MAX-0.5 )*2   // random number generator between -1 and +1 
 #define ACT(a) max(a,0)    // RELU(a)
 
-
+#define DATA_TYPE_FLOAT
 #ifdef DATA_TYPE_FLOAT 
   #define DATA_TYPE float
   #define EXP_LIMIT 78.0  // limit 88.xx but we need to factor in accumulation for softmax

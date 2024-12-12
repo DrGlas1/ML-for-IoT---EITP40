@@ -10,6 +10,7 @@
 
 typedef struct __attribute__( ( packed ) )
 {
+  uint8_t batch_id;
   float w[BLE_NBR_WEIGHTS];
 } ble_data_t;
 

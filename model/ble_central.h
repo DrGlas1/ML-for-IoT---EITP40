@@ -2,20 +2,22 @@
 #include "ble.h"
 
 void do_training();
+static float* dyn_weights;
 
-BLEService weightsService(READ_UUID);
-BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
-BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
+static BLEService weightsService(READ_UUID);
+static BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
+static BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
 
-void ConnectHandler(BLEDevice central) {
+static void ConnectHandler(BLEDevice central) {
   BLE.advertise();
 }
 
-void DisconnectHandler(BLEDevice central) {
+static void DisconnectHandler(BLEDevice central) {
   BLE.advertise();
 }
 
-void setupBLE() {
+void setupBLE(float* wbptr) {
+  dyn_weights = wbptr;
   // initialize the BLE hardware
   // begin initialization
   if (!BLE.begin()) {
@@ -47,6 +49,14 @@ void setupBLE() {
   BLE.advertise();
 }
 
+static void send_data() {
+  for (int i = 0; i < NBR_BATCHES_ITER; i++) {
+    bleData.batch_id = i;
+    memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(float));
+    readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+  }
+}
+
 void loopBLE() {
   BLE.poll();
   if (!BLE.central()) {
@@ -56,6 +66,6 @@ void loopBLE() {
   if (writeCharacteristic.written()) {
       writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
       do_training();
-      readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+      send_data();
   }
 }
