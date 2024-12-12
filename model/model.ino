@@ -28,13 +28,6 @@ int iter_cnt = 0;           // This keeps track of the number of epochs you've t
 
 // This function contains your training loop
 void do_training() {
-
-  // Print the weights if you want to debug
-#if DEBUG
-  Serial.println("Now Training");
-  PRINT_WEIGHTS();
-#endif
-
   // Print the epoch number
   Serial.print("Epoch count (training count): ");
   Serial.print(++iter_cnt);
@@ -51,10 +44,17 @@ void do_training() {
     forwardProp();
     backwardProp();
   }
+}
 
-  Serial.println("Accuracy after local training:");
+void aggregate_weights() {
+
+  Serial.println("Accuracy before aggregation:");
   printAccuracy();
 
+  packUnpackVector(AVERAGE);
+
+  Serial.println("Accuracy after aggregation:");
+  printAccuracy();
 }
 
 
