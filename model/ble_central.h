@@ -34,9 +34,9 @@ static void loopPeripheral() {
       readCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
       printBLE(bleData, false);
       if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
+        send_data();
         do_training();
       }
-      send_data();
     }
   }
 }
