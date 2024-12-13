@@ -1,8 +1,8 @@
 #define CENTRAL
 #ifdef CENTRAL
-#include "online_data.h"
+#include "online_data_1.h"
 #else
-#include "arduino_data.h"
+#include "onlnie_data_2.h"
 #endif
 #include "NN_functions.h"
 

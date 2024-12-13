@@ -5,9 +5,9 @@ import pandas as pd
 from itertools import cycle
 
 
-input_folder = "../dataset/arduino_cam"
-output_folder = os.path.join(input_folder, "../arduino_images")
-label_file = os.path.join(input_folder, "../arduino_labels.csv")
+input_folder = "../dataset/online_2"
+output_folder = os.path.join(input_folder, "../online_images_2")
+label_file = os.path.join(input_folder, "../online_labels_2.csv")
 target_size = (144, 176)
 
 os.makedirs(output_folder, exist_ok=True)
@@ -25,10 +25,13 @@ labels = [0 if "non" in img else 1 for img in mixed_dataset_images]
 label_data = []
 for i, img_path in enumerate(mixed_dataset_images):
     image = cv2.imread(img_path)
+    grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    resized_image = cv2.resize(grayscale_image, target_size)
+    normalized_image = resized_image / 255.0
 
     output_filename = f"{i:05d}.png"
     output_path = os.path.join(output_folder, output_filename)
-    cv2.imwrite(output_path, image)
+    cv2.imwrite(output_path, (normalized_image * 255).astype(np.uint8))
 
     label_data.append((output_filename, labels[i]))
 
