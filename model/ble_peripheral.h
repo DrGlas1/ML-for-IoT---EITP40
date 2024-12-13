@@ -73,6 +73,10 @@ void loopBLE() {
 
   if (writeCharacteristic.written()) {
       writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
+      if(bleData.batch_id == -1) {
+        do_training();
+        send_data();
+      }
       printBLE(bleData, false);
       store_incoming_weights();
       if (bleData.batch_id == NBR_BATCHES_ITER - 1) {

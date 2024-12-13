@@ -71,6 +71,7 @@ static void connectPeripheral() {
     peripheral.disconnect();
     return;
   }
+  bleData.batch_id = -1;
 
   // Inform peripheral, connection is established
   writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
@@ -94,7 +95,6 @@ void loopBLE() {
 
     // stop scanning
     BLE.stopScan();
-
     connectPeripheral();
 
     // peripheral disconnected, start scanning again
