@@ -6,7 +6,7 @@
 #define LEARNING_RATE 0.1    // The learning rate used to train your network
 #define EPOCH 10             // The maximum number of epochs
 #define DATA_TYPE_FlOAT      // The data type used: Set this to DATA_TYPE_DOUBLE for higher precision
-#define CENTRAL
+//#define CENTRAL
 
 extern const int first_layer_input_cnt;
 extern const int classes_cnt;

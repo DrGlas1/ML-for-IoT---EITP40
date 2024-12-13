@@ -1,4 +1,9 @@
-#include "data.h"
+//#define CENTRAL
+#ifdef CENTRAL
+#include "online_data.h"
+#else
+#include "arduino_data.h"
+#endif
 #include "NN_functions.h"
 
 #define WRITE_UUID "19B10001-E8F2-537E-4F6C-D104768A1215"
