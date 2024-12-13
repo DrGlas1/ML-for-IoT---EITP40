@@ -1,4 +1,9 @@
-#include "data.h"
+#define CENTRAL
+#ifdef CENTRAL
+#include "online_data.h"
+#else
+#include "arduino_data.h"
+#endif
 #include "NN_functions.h"
 
 #define WRITE_UUID "19B10001-E8F2-537E-4F6C-D104768A1215"
@@ -15,20 +20,6 @@ typedef struct __attribute__( ( packed ) )
   float w[BLE_NBR_WEIGHTS];
 } ble_data_t;
 
-void printBLE(ble_data_t bleData, bool sending) {
-#if DEBUG_BLE
-    if(sending) Serial.println("Sending values: ");
-    else Serial.println("Received values: ");
-    Serial.print("Batch id: ");
-    Serial.println(bleData.batch_id);
-    Serial.print("Weights: ");
-    for (int i = 0; i < BLE_NBR_WEIGHTS; i++) {
-        Serial.print(bleData.w[i]);
-        Serial.print(" ");
-    }
-    Serial.println();
-#endif
-}
 
 void printWeights(float* dyn_weights, bool sending) {
 #if DEBUG_BLE

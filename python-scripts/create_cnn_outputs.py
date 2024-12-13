@@ -6,9 +6,9 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from tensorflow import keras
 
-image_folder = "../dataset/pretrain_gray"
-label_file = "../dataset/labels_gray.csv"
-output_file = "../model/data.h"
+image_folder = "../dataset/arduino_images"
+label_file = "../dataset/arduino_labels.csv"
+output_file = "../model/arduino_data.h"
 IMAGE_SIZE = (144, 172)
 TRAIN_RATIO = 0.7
 VAL_RATIO = 0.2
