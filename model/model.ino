@@ -6,37 +6,37 @@
 #define LEARNING_RATE 0.1    // The learning rate used to train your network
 #define EPOCH 10             // The maximum number of epochs
 #define DATA_TYPE_FlOAT      // The data type used: Set this to DATA_TYPE_DOUBLE for higher precision
-//#define PERIPHERAL
-#define CENTRAL 1
+#define CENTRAL
 
 extern const int first_layer_input_cnt;
 extern const int classes_cnt;
 
 static const unsigned int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 
-#include "data.h"       // The data, labels and the sizes of all objects are stored here
-#include "NN_functions.h"   // All NN functions are stored here
 #ifdef CENTRAL
 #include "ble_central.h"
-#endif
-#ifdef PERIPHERAL
+#else
 #include "ble_peripheral.h"
 #endif
 
 bool running = true;
 int iter_cnt = 0;           // This keeps track of the number of epochs you've trained on the Arduino
-#define DEBUG 0             // This prints the weights of your network in case you want to do debugging (set to 1 if you want to see that)
+#define DEBUG 1             // This prints the weights of your network in case you want to do debugging (set to 1 if you want to see that)
 
+
+void aggregate_weights() {
+
+  Serial.println("Accuracy before aggregation:");
+  printAccuracy();
+
+  packUnpackVector(AVERAGE);
+
+  Serial.println("Accuracy after aggregation:");
+  printAccuracy();
+}
 
 // This function contains your training loop
 void do_training() {
-
-  // Print the weights if you want to debug
-#if DEBUG
-  Serial.println("Now Training");
-  PRINT_WEIGHTS();
-#endif
-
   // Print the epoch number
   Serial.print("Epoch count (training count): ");
   Serial.print(++iter_cnt);
@@ -54,9 +54,7 @@ void do_training() {
     backwardProp();
   }
 
-  Serial.println("Accuracy after local training:");
-  printAccuracy();
-
+  aggregate_weights();
 }
 
 
@@ -82,7 +80,7 @@ void setup() {
   setupNN(WeightBiasPtr);  // CREATES THE NETWORK BASED ON NN_def[]
   Serial.print("The accuracy before training");
   printAccuracy();
-  setupBLE();
+  setupBLE(WeightBiasPtr);
 }
 
 void loop() {

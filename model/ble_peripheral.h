@@ -2,88 +2,84 @@
 #include "ble.h"
 
 void do_training();
+static float* dyn_weights;
+static ble_data_t bleData;
 
-BLEDevice peripheral;
-BLECharacteristic readCharacteristic;
-BLECharacteristic writeCharacteristic;
+static BLEService weightsService(READ_UUID);
+static BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
+static BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
 
-
-void loopPeripheral() {
-  while (peripheral.connected()) {
-    if (readCharacteristic.valueUpdated()) {
-      // Fetch from peripheral
-      readCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
-      do_training();
-      writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
-    }
-  }
+static void ConnectHandler(BLEDevice central) {
+  BLE.advertise();
 }
 
-void connectPeripheral() {
-  Serial.println("Connecting ...");
-
-  if (peripheral.connect()) {
-    Serial.println("Connected");
-  } else {
-    Serial.println("Failed to connect!");
-  }
-
-  Serial.println("Discovering attributes ...");
-  if (peripheral.discoverAttributes()) {
-    Serial.println("Attributes discovered");
-  } else {
-    Serial.println("Attribute discovery failed!");
-    peripheral.disconnect();
-    return;
-  }
-
-  // retrieve the Weights characteristics
-  readCharacteristic = peripheral.characteristic(READ_UUID);
-  writeCharacteristic = peripheral.characteristic(WRITE_UUID);
-
-  if (!readCharacteristic || !writeCharacteristic) {
-    peripheral.disconnect();
-    return;
-  }
-  if (!readCharacteristic.subscribe()) {
-    peripheral.disconnect();
-    return;
-  }
-
-  // Inform peripheral, connection is established
-  bleData.turn = -1;
-  writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
-
-  // Continues until disconnect
-  loopPeripheral();
-
-  Serial.println("Peripheral disconnected");
+static void DisconnectHandler(BLEDevice central) {
+  BLE.advertise();
 }
 
-void setupBLE() {
+void setupBLE(float* wbptr) {
+  dyn_weights = wbptr;
   // initialize the BLE hardware
-  BLE.begin();
+  // begin initialization
+  if (!BLE.begin()) {
+    Serial.println("starting BLE failed!");
+    while (1)
+      ;
+  }
+  Serial.println("Setting up CENTRAL BLE");
+  do_training(); // leader trains once before setting up
 
-  // start scanning for peripherals
-  BLE.scanForUuid(READ_UUID);
+  BLE.setEventHandler(BLEConnected, ConnectHandler);
+  BLE.setEventHandler(BLEDisconnected, DisconnectHandler);
+  // set advertised local name and service UUID:
+  BLE.setLocalName("Leader");
+  BLE.setAdvertisedService(weightsService);
+
+  // add the characteristic to the service
+  weightsService.addCharacteristic(readCharacteristic);
+  weightsService.addCharacteristic(writeCharacteristic);
+
+  // add service
+  BLE.addService(weightsService);
+
+  // set the initial value for the characeristic:
+  writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+  readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+
+  // start advertising
+  BLE.advertise();
+}
+
+static void send_data() {
+  printWeights(dyn_weights, true);
+  for (int i = 0; i < NBR_BATCHES_ITER; i++) {
+    bleData.batch_id = i;
+    memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(float));
+    readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+  }
+}
+
+inline void store_incoming_weights() {
+  memcpy(dyn_weights + bleData.batch_id * BLE_NBR_WEIGHTS, bleData.w, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
 }
 
 void loopBLE() {
-  // check if a peripheral has been discovered
-  peripheral = BLE.available();
+  BLE.poll();
+  if (!BLE.central()) {
+    return;
+  }
 
-  if (peripheral) {
-    // discovered a peripheral, print out address, local name, and advertised service
-    if (peripheral.localName() != "Leader") {
-      return;
-    }
-
-    // stop scanning
-    BLE.stopScan();
-
-    connectPeripheral();
-
-    // peripheral disconnected, start scanning again
-    BLE.scanForUuid(READ_UUID);
+  if (writeCharacteristic.written()) {
+      writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
+      if(bleData.batch_id == -1) {
+        do_training();
+        send_data();
+      }
+      store_incoming_weights();
+      if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
+        printWeigths(dyn_weights, false);
+        send_data();
+        do_training();
+      }
   }
 }

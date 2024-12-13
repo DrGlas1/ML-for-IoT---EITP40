@@ -2,60 +2,101 @@
 #include "ble.h"
 
 void do_training();
+static float* dyn_weights;
+static ble_data_t bleData;
 
-BLEService weightsService(READ_UUID);
-BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
-BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
+static BLEDevice peripheral;
+static BLECharacteristic readCharacteristic;
+static BLECharacteristic writeCharacteristic;
 
-void ConnectHandler(BLEDevice central) {
-  BLE.advertise();
-}
-
-void DisconnectHandler(BLEDevice central) {
-  BLE.advertise();
-}
-
-void setupBLE() {
+void setupBLE(float* wbptr) {
+  dyn_weights = wbptr;
   // initialize the BLE hardware
-  // begin initialization
-  if (!BLE.begin()) {
-    Serial.println("starting BLE failed!");
-    while (1)
-      ;
-  }
-  Serial.println("Setting up CENTRAL BLE");
-  do_training(); // leader trains once before setting up
+  BLE.begin();
 
-  BLE.setEventHandler(BLEConnected, ConnectHandler);
-  BLE.setEventHandler(BLEDisconnected, DisconnectHandler);
-  // set advertised local name and service UUID:
-  BLE.setLocalName("Leader");
-  BLE.setAdvertisedService(weightsService);
-
-  // add the characteristic to the service
-  weightsService.addCharacteristic(readCharacteristic);
-  weightsService.addCharacteristic(writeCharacteristic);
-
-  // add service
-  BLE.addService(weightsService);
-
-  // set the initial value for the characeristic:
-  writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
-  readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
-
-  // start advertising
-  BLE.advertise();
+  // start scanning for peripherals
+  BLE.scanForUuid(READ_UUID);
 }
 
-void loopBLE() {
-  BLE.poll();
-  if (!BLE.central()) {
+static void send_data() {
+  printWeights(dyn_weights, true);
+  for (int i = 0; i < NBR_BATCHES_ITER; i++) {
+    bleData.batch_id = i;
+    memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(float));
+    writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+  }
+}
+
+static void loopPeripheral() {
+  while (peripheral.connected()) {
+    if (readCharacteristic.valueUpdated()) {
+      // Fetch from peripheral
+      readCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
+      if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
+        printWeights(dyn_weights, false);
+        send_data();
+        do_training();
+      }
+    }
+  }
+}
+
+static void connectPeripheral() {
+  Serial.println("Connecting ...");
+
+  if (peripheral.connect()) {
+    Serial.println("Connected");
+  } else {
+    Serial.println("Failed to connect!");
+  }
+
+  Serial.println("Discovering attributes ...");
+  if (peripheral.discoverAttributes()) {
+    Serial.println("Attributes discovered");
+  } else {
+    Serial.println("Attribute discovery failed!");
+    peripheral.disconnect();
     return;
   }
 
-  if (writeCharacteristic.written()) {
-      writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
-      do_training();
-      readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+  // retrieve the Weights characteristics
+  readCharacteristic = peripheral.characteristic(READ_UUID);
+  writeCharacteristic = peripheral.characteristic(WRITE_UUID);
+
+  if (!readCharacteristic || !writeCharacteristic) {
+    peripheral.disconnect();
+    return;
+  }
+  if (!readCharacteristic.subscribe()) {
+    peripheral.disconnect();
+    return;
+  }
+  bleData.batch_id = 255;
+
+  // Inform peripheral, connection is established
+  writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+
+  // Continues until disconnect
+  loopPeripheral();
+
+  Serial.println("Peripheral disconnected");
+}
+
+void loopBLE() {
+  // check if a peripheral has been discovered
+  peripheral = BLE.available();
+
+  if (peripheral) {
+    // discovered a peripheral, print out address, local name, and advertised service
+    if (peripheral.localName() != "Leader") {
+      return;
+    }
+
+    // stop scanning
+    BLE.stopScan();
+    connectPeripheral();
+
+    // peripheral disconnected, start scanning again
+    BLE.scanForUuid(READ_UUID);
   }
 }
