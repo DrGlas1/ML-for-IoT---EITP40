@@ -24,6 +24,17 @@ int iter_cnt = 0;           // This keeps track of the number of epochs you've t
 #define DEBUG 1             // This prints the weights of your network in case you want to do debugging (set to 1 if you want to see that)
 
 
+void aggregate_weights() {
+
+  Serial.println("Accuracy before aggregation:");
+  printAccuracy();
+
+  packUnpackVector(AVERAGE);
+
+  Serial.println("Accuracy after aggregation:");
+  printAccuracy();
+}
+
 // This function contains your training loop
 void do_training() {
   // Print the epoch number
@@ -43,21 +54,7 @@ void do_training() {
     backwardProp();
   }
 
-#ifdef CENTRAL
-  Serial.println("Accuracy after training:");
-  printAccuracy();
-#endif
-}
-
-void aggregate_weights() {
-
-  Serial.println("Accuracy before aggregation:");
-  printAccuracy();
-
-  packUnpackVector(AVERAGE);
-
-  Serial.println("Accuracy after aggregation:");
-  printAccuracy();
+  aggregate_weights();
 }
 
 

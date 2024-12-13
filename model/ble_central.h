@@ -19,11 +19,11 @@ void setupBLE(float* wbptr) {
 }
 
 static void send_data() {
+  printWeights(dyn_weights, true);
   for (int i = 0; i < NBR_BATCHES_ITER; i++) {
     bleData.batch_id = i;
     memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(float));
     writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
-    printBLE(bleData, true);
   }
 }
 
@@ -32,8 +32,8 @@ static void loopPeripheral() {
     if (readCharacteristic.valueUpdated()) {
       // Fetch from peripheral
       readCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
-      printBLE(bleData, false);
       if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
+        printWeights(dyn_weights, false);
         send_data();
         do_training();
       }
@@ -71,11 +71,10 @@ static void connectPeripheral() {
     peripheral.disconnect();
     return;
   }
-  bleData.batch_id = -1;
+  bleData.batch_id = 255;
 
   // Inform peripheral, connection is established
   writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
-  printBLE(bleData, true);
 
   // Continues until disconnect
   loopPeripheral();

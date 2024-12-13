@@ -29,3 +29,15 @@ void printBLE(ble_data_t bleData, bool sending) {
     Serial.println();
 #endif
 }
+
+void printWeights(float* dyn_weights, bool sending) {
+#if DEBUG_BLE
+  if(sending) Serial.print("Sending values: ");
+  else Serial.print("Received values: ");
+  for (int i = 0; i < DYN_NBR_WEIGHTS; i++) {
+      Serial.print(dyn_weights[i]);
+      Serial.print(" ");
+  }
+  Serial.println();
+#endif
+} 
