@@ -1,23 +1,11 @@
 #include <ArduinoBLE.h>
+#include "ble_data.h"
 
-#define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
-
-void do_training();
 void aggregate_weights();
 
-typedef struct __attribute__( ( packed ) )
-{
-  int8_t turn;
-  uint8_t batch_id;
-  float w[BLE_NBR_WEIGHTS];
-} ble_data_t;
-
-float* dyn_weights;
-ble_data_t bleData;
-
-BLEService weightsService("19B10000-E8F2-537E-4F6C-D104768A1214");
-BLECharacteristic readCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEIndicate, sizeof(bleData));
-BLECharacteristic writeCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1215", BLEWrite, sizeof(bleData));
+BLEService weightsService(READ_UUID);
+BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
+BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
 
 
 inline void store_incoming_weights() {
