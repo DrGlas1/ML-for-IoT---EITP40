@@ -139,9 +139,6 @@ void setup() {
   // the code is only for Fully connected layers
   weights_bias_cnt = calcTotalWeightsBias();
 
-#if !USE_DISTRIBUTED_WEIGHTS
-  weights_bias_cnt = BLE_NBR_WEIGHTS; // Since weights are not being used, only a packet for synchronization is needed
-#endif
 
   // weights_bias_cnt has to be multiple of BLE_NBR_WEIGHTS
   int remainder = weights_bias_cnt % BLE_NBR_WEIGHTS;
@@ -156,18 +153,9 @@ void setup() {
 
   setupNN(WeightBiasPtr);  // CREATES THE NETWORK BASED ON NN_def[]
   printAccuracy();
-#if ENABLE_BLE
   setupBLE(WeightBiasPtr);
-#endif
 }
 
 void loop() {
-  // Note that for the "central": another loop is ran
-  // when connceted to a peripheral. This function is
-  // then not reachable.
-#if ENABLE_BLE
   loopBLE();
-#else
-  do_training(); // Local training
-#endif
 }
