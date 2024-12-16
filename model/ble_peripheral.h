@@ -1,13 +1,32 @@
 #include <ArduinoBLE.h>
-#include "ble.h"
+
+#define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
 
 void do_training();
+void aggregate_weights();
+
+typedef struct __attribute__( ( packed ) )
+{
+  int8_t turn;
+  uint8_t batch_id;
+  float w[BLE_NBR_WEIGHTS];
+} ble_data_t;
+
 float* dyn_weights;
 ble_data_t bleData;
 
-BLEService weightsService(READ_UUID);
-BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
-BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
+BLEService weightsService("19B10000-E8F2-537E-4F6C-D104768A1214");
+BLECharacteristic readCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEIndicate, sizeof(bleData));
+BLECharacteristic writeCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1215", BLEWrite, sizeof(bleData));
+
+
+inline void store_incoming_weights() {
+  memcpy(dyn_weights + bleData.batch_id * BLE_NBR_WEIGHTS, bleData.w, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
+
+  if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
+    aggregate_weights();
+  }
+}
 
 void ConnectHandler(BLEDevice central) {
   BLE.advertise();
@@ -23,16 +42,12 @@ void setupBLE(float* wbptr) {
   // begin initialization
   if (!BLE.begin()) {
     Serial.println("starting BLE failed!");
-    while (1)
-      ;
+    while (1);
   }
-  Serial.println("Setting up CENTRAL BLE");
-  do_training(); // leader trains once before setting up
-
   BLE.setEventHandler(BLEConnected, ConnectHandler);
   BLE.setEventHandler(BLEDisconnected, DisconnectHandler);
   // set advertised local name and service UUID:
-  BLE.setLocalName("Leader");
+  BLE.setLocalName("MLLeader");
   BLE.setAdvertisedService(weightsService);
 
   // add the characteristic to the service
@@ -46,11 +61,17 @@ void setupBLE(float* wbptr) {
   writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
   readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
 
-  // start advertising
   BLE.advertise();
+
+  do_training();
 }
 
-void send_data() {
+int turn;
+
+void send_iteration_data() {
+  turn = 1;
+  bleData.turn = turn;
+
   for (int i = 0; i < NBR_BATCHES_ITER; i++) {
     bleData.batch_id = i;
     memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
@@ -58,26 +79,33 @@ void send_data() {
   }
 }
 
-inline void store_incoming_weights() {
-  memcpy(dyn_weights + bleData.batch_id * BLE_NBR_WEIGHTS, bleData.w, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
-}
-
 void loopBLE() {
   BLE.poll();
-  if (!BLE.central()) {
-    return;
-  }
+  if (!BLE.central()) return;
 
   if (writeCharacteristic.written()) {
+    int8_t receivedTurn = writeCharacteristic[0];
+
+    if (receivedTurn == -1) {
+      send_iteration_data();
+      return;
+    }
+
+    if (receivedTurn == 0) {
+      uint8_t batch_id = writeCharacteristic[1];
+
+
       writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
-      if(bleData.batch_id == 255) {
-        do_training();
-        send_data();
-      }
       store_incoming_weights();
-      if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
-        send_data();
+
+      if (turn == NBR_CENTRALS && batch_id == NBR_BATCHES_ITER - 1) {
+        send_iteration_data();
         do_training();
+        
+      } else if (bleData.batch_id == NBR_BATCHES_ITER - 1 ) {
+        bleData.turn = ++turn;
+        readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
       }
+    }
   }
 }
