@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from tensorflow import keras
 
-image_folder = "../dataset/online_images_1"
-label_file = "../dataset/online_labels_1.csv"
+image_folder = "../dataset/online_images_2"
+label_file = "../dataset/online_labels_2.csv"
 output_file = "../model/online_data_2.h"
 IMAGE_SIZE = (144, 172)
 TRAIN_RATIO = 0.7
