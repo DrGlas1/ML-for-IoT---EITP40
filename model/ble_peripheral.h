@@ -54,7 +54,7 @@ static void send_data() {
   printWeights(dyn_weights, true);
   for (int i = 0; i < NBR_BATCHES_ITER; i++) {
     bleData.batch_id = i;
-    memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(float));
+    memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
     readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
   }
 }
