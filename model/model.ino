@@ -17,65 +17,26 @@ extern const int classes_cnt;
 #define DEVICE_TYPE WORKER // Which device is being exported: LEADER or WORKER?
 #define DEBUG 0
 
-/*
- *  Should LEADER and WORKER use different datasets? Ex. one label is only present in the training set
- *  for one of the devices. Makes the distribution more obvious.
- */
 #define USE_BIASED_DATASETS 1
-
-/*
- *  Should the incoming weights be saved (and taken into account) or ignored? Can be used to
- *  test the accuracy if only training locally, using the device's own data.
- *  BLE is still used, to synchronize between iterations, thus can also be used to test BLE connection.
- *  NOTE: ENABLE_BLE should be set to 1 if this is enabled.
- */
 #define USE_DISTRIBUTED_WEIGHTS 1
-
-/*
- *  Disabling BLE runs the device completely locally. I.e. training happens as if
- *  USE_DISTRIBUTED_WEIGHTS = 0 and no synchronization is done at all.
- *  Use for testing on one device.
- */
 #define ENABLE_BLE 1
-
-/* 
- *  DYN_NBR_WEIGHTS defines how many weights that should be transfered via BLE in total/iteration.
- *  This is calculated at runtime now. Note that it has to be a multiple of BLE_NR_WEIGHTS
- *  and that DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS < 256 to prevent overflow.
- */
 #define DYN_NBR_WEIGHTS weights_bias_cnt // MUST BE MULTIPLE OF BLE_NBR_WEIGHTS!
-
-/*
- *  For BLE_NR_WEIGHTS, i.e. weights per BLE-transmission, we had big reliability issues
- *  if the payload was > 50 bytes per package. In the struct we use, two bytes are used
- *  for synchronization, leaving 48 bytes to weights. If using floats (as we do), this gives
- *  12 weights per BLE-transmission.
- */
 #define BLE_NBR_WEIGHTS 12
 
-// NN parameters
 #define LEARNING_RATE 0.01
 #define EPOCH 50 
 
-// DO NOT TOUCH THE FIRST AND LAST ENTRIES OF BELOW ARRAY, YOU CAN MODIFY ANY OF OTHER ENTRIES
-// like increase the number of layers, change the nodes per layer
 static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 
-// this is to set the precision for weight/bias in NN
 #define DATA_TYPE_FLOAT  // Valid values:  DATA_TYPE_DOUBLE , DATA_TYPE_FLOAT
 
-/* ------- END CONFIG ------- */
-
-// Training and Validation data
 #if USE_BIASED_DATASETS && DEVICE_TYPE == LEADER
 #include "online_data_5.h"  
-#elif USE_BIASED_DATASETS && DEVICE_TYPE == WORKER
-#include "online_data_6.h"
 #else
-#include "cnn_data.h"  
+#include "online_data_6.h"
 #endif
     
-#include "NN_functions.h" // Neural Network specific functions and definitions
+#include "NN_functions.h"
 
 #if DEVICE_TYPE == LEADER
 #define NBR_CENTRALS 1 // Config
