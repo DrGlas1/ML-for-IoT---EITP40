@@ -1,4 +1,4 @@
-#define CENTRAL
+//#define CENTRAL
 #ifdef CENTRAL
 #include "online_data_1.h"
 #else
@@ -12,7 +12,7 @@
 #define BLE_NBR_WEIGHTS 12
 #define DYN_NBR_WEIGHTS calcTotalWeightsBias()
 #define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
-#define DEBUG_BLE 1
+#define DEBUG_BLE 0
 
 typedef struct __attribute__( ( packed ) )
 {

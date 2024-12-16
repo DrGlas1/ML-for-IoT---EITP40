@@ -20,7 +20,7 @@
 
 #define IN_VEC_SIZE first_layer_input_cnt
 #define OUT_VEC_SIZE classes_cnt
-#define DEBUG 1
+#define DEBUG_WEIGHTS 1
 
 // size of different vectors
 size_t numTestData = test_data_cnt;
@@ -355,7 +355,7 @@ void packUnpackVector(int Type)
 {
   unsigned int ptrCount = 0;
   if (Type == PACK) {
-#if DEBUG
+#if DEBUG_WEIGHTS
     Serial.print("Weights copying to dyn_weights: ");
 #endif
     // Propagating through network, we store all weights first and then bias.
@@ -363,7 +363,7 @@ void packUnpackVector(int Type)
     for (unsigned int i = 1; i < numLayers; i++) {
       for (unsigned int j = 0; j < NN_def[i]; j++) {
         for (unsigned int k = 0; k < L[i].Neu[j].numInput; k++) {
-#if DEBUG
+#if DEBUG_WEIGHTS
           Serial.print(L[i].Neu[j].W[k]);
           Serial.print(" ");
 #endif
@@ -374,7 +374,7 @@ void packUnpackVector(int Type)
         ptrCount += 1;
       }
     }
-#if DEBUG
+#if DEBUG_WEIGHTS
           Serial.println(" ");
 #endif
 
