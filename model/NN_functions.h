@@ -125,7 +125,7 @@ layer createLayer (int numNeuron) {
 }
 
 void createNetwork() {
-
+  
 	L = (layer*)calloc(numLayers, sizeof(layer));
 
 	// First layer has no input weights

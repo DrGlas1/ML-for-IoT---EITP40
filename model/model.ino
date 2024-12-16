@@ -24,11 +24,10 @@ int iter_cnt = 0;           // This keeps track of the number of epochs you've t
 
 
 void aggregate_weights() {
-
   Serial.println("Accuracy before aggregation:");
   printAccuracy();
 
-  //packUnpackVector(AVERAGE);
+  packUnpackVector(AVERAGE);
 
   Serial.println("Accuracy after aggregation:");
   printAccuracy();

@@ -72,7 +72,6 @@ void loopBLE() {
   if (writeCharacteristic.written()) {
       writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
       if(bleData.batch_id == 255) {
-        do_training();
         send_data();
       }
       store_incoming_weights();
