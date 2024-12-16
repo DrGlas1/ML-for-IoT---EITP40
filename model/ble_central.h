@@ -9,6 +9,17 @@ static BLEDevice peripheral;
 static BLECharacteristic readCharacteristic;
 static BLECharacteristic writeCharacteristic;
 
+void PRINT_WEIGHTS() {
+#if DEBUG
+  Serial.print("Weights Value: ");
+  for (int i = 0; i < DYN_NBR_WEIGHTS; i++) {
+    Serial.print(dyn_weights[i]);
+    Serial.print(" ");
+  }
+  Serial.println();
+#endif
+}
+
 void setupBLE(float* wbptr) {
   dyn_weights = wbptr;
   // initialize the BLE hardware

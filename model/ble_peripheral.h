@@ -9,6 +9,17 @@ static BLEService weightsService(READ_UUID);
 static BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
 static BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
 
+void PRINT_WEIGHTS() {
+#if DEBUG
+  Serial.print("Weights Value: ");
+  for (int i = 0; i < DYN_NBR_WEIGHTS; i++) {
+    Serial.print(dyn_weights[i]);
+    Serial.print(" ");
+  }
+  Serial.println();
+#endif
+}
+
 static void ConnectHandler(BLEDevice central) {
   BLE.advertise();
 }

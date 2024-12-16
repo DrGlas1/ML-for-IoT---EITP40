@@ -21,7 +21,6 @@ static const unsigned int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 
 bool running = true;
 int iter_cnt = 0;           // This keeps track of the number of epochs you've trained on the Arduino
-#define DEBUG 1             // This prints the weights of your network in case you want to do debugging (set to 1 if you want to see that)
 
 
 void aggregate_weights() {
@@ -30,6 +29,7 @@ void aggregate_weights() {
   printAccuracy();
 
   packUnpackVector(AVERAGE);
+  PRINT_WEIGHTS();
 
   Serial.println("Accuracy after aggregation:");
   printAccuracy();
@@ -53,7 +53,8 @@ void do_training() {
     forwardProp();
     backwardProp();
   }
-
+  PRINT_WEIGHTS();
+  packUnpackVector(PACK);
   aggregate_weights();
 }
 

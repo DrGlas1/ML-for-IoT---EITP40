@@ -4,9 +4,9 @@ import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
-image_folder = "../dataset/online_images_1"
-label_file = "../dataset/online_labels_1.csv"
-output_file = "../model/online_data_1.h"
+image_folder = "../dataset/online_images_3"
+label_file = "../dataset/online_labels_3.csv"
+output_file = "../model/online_data_3.h"
 IMAGE_SIZE = (25, 30)
 TRAIN_RATIO = 0.75
 VAL_RATIO = 0.2

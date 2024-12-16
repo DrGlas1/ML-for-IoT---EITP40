@@ -6,9 +6,9 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from tensorflow import keras
 
-image_folder = "../dataset/online_images_2"
-label_file = "../dataset/online_labels_2.csv"
-output_file = "../model/online_data_2.h"
+image_folder = "../dataset/online_images_4"
+label_file = "../dataset/online_labels_4.csv"
+output_file = "../model/online_data_4.h"
 IMAGE_SIZE = (144, 172)
 TRAIN_RATIO = 0.7
 VAL_RATIO = 0.2
@@ -67,19 +67,19 @@ def write_to_h_file(output_file, train_data, train_labels, val_data, val_labels,
         f.write(", ".join(map(str, test_labels)))
         f.write("\n};\n")
 
-        f.write(f"const float train_data[train_data_cnt][first_layer_input_cnt] = {{\n")
+        f.write(f"const float train_data[{len(train_labels)}][{size}] = {{\n")
         for row in train_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")
         f.write("};\n")
 
-        f.write(f"const float validation_data[validation_data_cnt][first_layer_input_cnt] = {{\n")
+        f.write(f"const float validation_data[{len(val_labels)}][{size}] = {{\n")
         for row in val_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")
         f.write("};\n\n")
 
-        f.write(f"const float test_data[test_data_cnt][first_layer_input_cnt] = {{\n")
+        f.write(f"const float test_data[{len(test_labels)}][{size}] = {{\n")
         for row in test_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")

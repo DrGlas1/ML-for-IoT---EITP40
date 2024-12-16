@@ -5,9 +5,9 @@ import pandas as pd
 from itertools import cycle
 
 
-input_folder = "../dataset/online_2"
-output_folder = os.path.join(input_folder, "../online_images_2")
-label_file = os.path.join(input_folder, "../online_labels_2.csv")
+input_folder = "../dataset/online_3"
+output_folder = os.path.join(input_folder, "../online_images_3")
+label_file = os.path.join(input_folder, "../online_labels_3.csv")
 target_size = (144, 176)
 
 os.makedirs(output_folder, exist_ok=True)

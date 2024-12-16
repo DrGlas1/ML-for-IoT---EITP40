@@ -9,10 +9,11 @@
 #define WRITE_UUID "19B10001-E8F2-537E-4F6C-D104768A1215"
 #define READ_UUID "19b10001-e8f2-537e-4f6c-d104768a1214"
 // The BLE can only send a limited number of bytes per transmission
-#define BLE_NBR_WEIGHTS 12
+#define BLE_NBR_WEIGHTS 22
 #define DYN_NBR_WEIGHTS calcTotalWeightsBias()
 #define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
-#define DEBUG_BLE 0
+#define DEBUG_BLE 1
+#define DEBUG 1 
 
 typedef struct __attribute__( ( packed ) )
 {
