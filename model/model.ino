@@ -31,9 +31,9 @@ static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 #define DATA_TYPE_FLOAT  // Valid values:  DATA_TYPE_DOUBLE , DATA_TYPE_FLOAT
 
 #if USE_BIASED_DATASETS && DEVICE_TYPE == LEADER
-#include "online_data_5.h"  
+#include "online_data_1.h"
 #else
-#include "online_data_6.h"
+#include "online_data_2.h"
 #endif
     
 #include "NN_functions.h"
