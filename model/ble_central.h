@@ -1,65 +1,69 @@
 #include <ArduinoBLE.h>
-#include "ble.h"
+
+#define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
 
 void do_training();
+
+typedef struct __attribute__( ( packed ) )
+{
+  int8_t turn;
+  uint8_t batch_id;
+  float w[BLE_NBR_WEIGHTS];
+} ble_data_t;
+
 float* dyn_weights;
 ble_data_t bleData;
-
 BLEDevice peripheral;
+
 BLECharacteristic readCharacteristic;
 BLECharacteristic writeCharacteristic;
 
-void setupBLE(float* wbptr) {
-  dyn_weights = wbptr;
-  // initialize the BLE hardware
-  BLE.begin();
-
-  // start scanning for peripherals
-  BLE.scanForUuid(READ_UUID);
-}
-
-void send_data() {
-  for (int i = 0; i < NBR_BATCHES_ITER; i++) {
-    bleData.batch_id = i;
-    memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
-    writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
-  }
-}
 
 void loopPeripheral() {
   while (peripheral.connected()) {
     if (readCharacteristic.valueUpdated()) {
-      // Fetch from peripheral
       readCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
-      if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
-        send_data();
-        do_training();
+
+      if (bleData.turn == 1) {
+        memcpy(dyn_weights + bleData.batch_id * BLE_NBR_WEIGHTS, bleData.w, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
+
+        if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
+          do_training();
+        }
+      }
+
+      if (bleData.turn == CENTRAL_ID && (bleData.batch_id == NBR_BATCHES_ITER - 1 || CENTRAL_ID != 1)) {
+        bleData.turn = 0;
+
+        // Should also be sent in batch
+        for (int i = 0; i < NBR_BATCHES_ITER; i++) {
+          bleData.batch_id = i;
+          // Copy weights
+          memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
+          writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
+        }
       }
     }
   }
 }
 
 void connectPeripheral() {
-  Serial.println("Connecting ...");
-
   if (peripheral.connect()) {
-    Serial.println("Connected");
   } else {
-    Serial.println("Failed to connect!");
+    return;
   }
 
+  // discover peripheral attributes
   Serial.println("Discovering attributes ...");
   if (peripheral.discoverAttributes()) {
-    Serial.println("Attributes discovered");
   } else {
-    Serial.println("Attribute discovery failed!");
     peripheral.disconnect();
     return;
   }
 
   // retrieve the Weights characteristics
-  readCharacteristic = peripheral.characteristic(READ_UUID);
-  writeCharacteristic = peripheral.characteristic(WRITE_UUID);
+  readCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1214");
+  writeCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1215");
 
   if (!readCharacteristic || !writeCharacteristic) {
     peripheral.disconnect();
@@ -69,9 +73,9 @@ void connectPeripheral() {
     peripheral.disconnect();
     return;
   }
-  bleData.batch_id = 255;
 
   // Inform peripheral, connection is established
+  bleData.turn = -1;
   writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
 
   // Continues until disconnect
@@ -80,21 +84,30 @@ void connectPeripheral() {
   Serial.println("Peripheral disconnected");
 }
 
+void setupBLE(float* wbptr) {
+  dyn_weights = wbptr;
+  BLE.begin();
+
+#if DEBUG
+  Serial.println("BLE Central - Weights control Setup Done");
+#endif
+
+  // start scanning for peripherals
+  BLE.scanForUuid("19b10000-e8f2-537e-4f6c-d104768a1214");
+}
+
 void loopBLE() {
-  // check if a peripheral has been discovered
   peripheral = BLE.available();
 
   if (peripheral) {
-    // discovered a peripheral, print out address, local name, and advertised service
-    if (peripheral.localName() != "Leader") {
+
+    if (peripheral.localName() != "MLLeader") {
       return;
     }
-
-    // stop scanning
     BLE.stopScan();
+
     connectPeripheral();
 
-    // peripheral disconnected, start scanning again
-    BLE.scanForUuid(READ_UUID);
+    BLE.scanForUuid("19b10000-e8f2-537e-4f6c-d104768a1214");
   }
 }
