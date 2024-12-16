@@ -66,9 +66,7 @@ void aggregate_weights() {
 #endif
 
 void do_training() {
-#if DEVICE_TYPE == CENTRAL
   if (iter_cnt >= EPOCH) destroy();
-#endif
 
 #if DEVICE_TYPE == PERIPHERAL
   packUnpackVector(UNPACK);
