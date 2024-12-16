@@ -2,23 +2,12 @@
 #include "ble.h"
 
 void do_training();
-static float* dyn_weights;
-static ble_data_t bleData;
+float* dyn_weights;
+ble_data_t bleData;
 
 static BLEDevice peripheral;
 static BLECharacteristic readCharacteristic;
 static BLECharacteristic writeCharacteristic;
-
-void PRINT_WEIGHTS() {
-#if DEBUG
-  Serial.print("Weights Value: ");
-  for (int i = 0; i < DYN_NBR_WEIGHTS; i++) {
-    Serial.print(dyn_weights[i]);
-    Serial.print(" ");
-  }
-  Serial.println();
-#endif
-}
 
 void setupBLE(float* wbptr) {
   dyn_weights = wbptr;

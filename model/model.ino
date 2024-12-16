@@ -28,8 +28,7 @@ void aggregate_weights() {
   Serial.println("Accuracy before aggregation:");
   printAccuracy();
 
-  packUnpackVector(AVERAGE);
-  PRINT_WEIGHTS();
+  //packUnpackVector(AVERAGE);
 
   Serial.println("Accuracy after aggregation:");
   printAccuracy();
@@ -53,7 +52,6 @@ void do_training() {
     forwardProp();
     backwardProp();
   }
-  PRINT_WEIGHTS();
   packUnpackVector(PACK);
   aggregate_weights();
 }
