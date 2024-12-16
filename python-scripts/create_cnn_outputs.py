@@ -55,31 +55,31 @@ def write_to_h_file(output_file, train_data, train_labels, val_data, val_labels,
         f.write(f"const int test_data_cnt = {len(test_labels)};\n")
         f.write(f"const int classes_cnt = {len(set(train_labels))};\n\n")
 
-        f.write("const int train_labels[] = {\n\t")
+        f.write("const int train_labels[train_data_cnt] = {\n\t")
         f.write(", ".join(map(str, train_labels)))
         f.write("\n};\n")
 
-        f.write("const int validation_labels[] = {\n\t")
+        f.write("const int validation_labels[validation_data_cnt] = {\n\t")
         f.write(", ".join(map(str, val_labels)))
         f.write("\n};\n")
 
-        f.write("const int test_labels[] = {\n\t")
+        f.write("const int test_labels[test_data_cnt] = {\n\t")
         f.write(", ".join(map(str, test_labels)))
         f.write("\n};\n")
 
-        f.write(f"const float train_data[{len(train_labels)}][{size}] = {{\n")
+        f.write(f"const float train_data[train_data_cnt][first_layer_input_cnt] = {{\n")
         for row in train_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")
         f.write("};\n")
 
-        f.write(f"const float validation_data[{len(val_labels)}][{size}] = {{\n")
+        f.write(f"const float validation_data[validation_data_cnt][first_layer_input_cnt] = {{\n")
         for row in val_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")
         f.write("};\n\n")
 
-        f.write(f"const float test_data[{len(test_labels)}][{size}] = {{\n")
+        f.write(f"const float test_data[test_data_cnt][first_layer_input_cnt] = {{\n")
         for row in test_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")
