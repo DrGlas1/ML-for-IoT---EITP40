@@ -53,7 +53,7 @@ void do_training() {
     forwardProp();
     backwardProp();
   }
-
+  packUnpackVector(PACK);
   aggregate_weights();
 }
 

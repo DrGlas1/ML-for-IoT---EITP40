@@ -12,7 +12,7 @@
 #define BLE_NBR_WEIGHTS 12
 #define DYN_NBR_WEIGHTS calcTotalWeightsBias()
 #define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
-#define DEBUG_BLE 0
+#define DEBUG_BLE 1
 
 typedef struct __attribute__( ( packed ) )
 {
