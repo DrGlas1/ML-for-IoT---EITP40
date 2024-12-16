@@ -5,15 +5,15 @@ void do_training();
 float* dyn_weights;
 ble_data_t bleData;
 
-static BLEService weightsService(READ_UUID);
-static BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
-static BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
+BLEService weightsService(READ_UUID);
+BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
+BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
 
-static void ConnectHandler(BLEDevice central) {
+void ConnectHandler(BLEDevice central) {
   BLE.advertise();
 }
 
-static void DisconnectHandler(BLEDevice central) {
+void DisconnectHandler(BLEDevice central) {
   BLE.advertise();
 }
 
@@ -50,8 +50,7 @@ void setupBLE(float* wbptr) {
   BLE.advertise();
 }
 
-static void send_data() {
-  printWeights(dyn_weights, true);
+void send_data() {
   for (int i = 0; i < NBR_BATCHES_ITER; i++) {
     bleData.batch_id = i;
     memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
@@ -77,7 +76,6 @@ void loopBLE() {
       }
       store_incoming_weights();
       if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
-        printWeights(dyn_weights, false);
         send_data();
         do_training();
       }

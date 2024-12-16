@@ -5,9 +5,9 @@ void do_training();
 float* dyn_weights;
 ble_data_t bleData;
 
-static BLEDevice peripheral;
-static BLECharacteristic readCharacteristic;
-static BLECharacteristic writeCharacteristic;
+BLEDevice peripheral;
+BLECharacteristic readCharacteristic;
+BLECharacteristic writeCharacteristic;
 
 void setupBLE(float* wbptr) {
   dyn_weights = wbptr;
@@ -18,22 +18,20 @@ void setupBLE(float* wbptr) {
   BLE.scanForUuid(READ_UUID);
 }
 
-static void send_data() {
-  printWeights(dyn_weights, true);
+void send_data() {
   for (int i = 0; i < NBR_BATCHES_ITER; i++) {
     bleData.batch_id = i;
-    memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(float));
+    memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
     writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
   }
 }
 
-static void loopPeripheral() {
+void loopPeripheral() {
   while (peripheral.connected()) {
     if (readCharacteristic.valueUpdated()) {
       // Fetch from peripheral
       readCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
       if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
-        printWeights(dyn_weights, false);
         send_data();
         do_training();
       }
@@ -41,7 +39,7 @@ static void loopPeripheral() {
   }
 }
 
-static void connectPeripheral() {
+void connectPeripheral() {
   Serial.println("Connecting ...");
 
   if (peripheral.connect()) {
