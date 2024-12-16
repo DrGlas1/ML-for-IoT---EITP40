@@ -2,8 +2,6 @@ const int first_layer_input_cnt = 75;
 const int train_data_cnt = 156;
 const int validation_data_cnt = 41;
 const int test_data_cnt = 32;
-:q
-
 
 const int classes_cnt = 2;
 
