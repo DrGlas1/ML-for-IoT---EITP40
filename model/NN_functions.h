@@ -356,7 +356,7 @@ void packUnpackVector(int Type)
   unsigned int ptrCount = 0;
   if (Type == PACK) {
 #if DEBUG_WEIGHTS
-    Serial.print("Weights copying to dyn_weights: ");
+    Serial.print("Weights copying: ");
 #endif
     // Propagating through network, we store all weights first and then bias.
     // we start with left most layer, and top most node or lowest to highest index
@@ -395,11 +395,18 @@ void packUnpackVector(int Type)
       }
     }
   } else if (Type == AVERAGE) {
+#if DEBUG_WEIGHTS
+    Serial.print("Weights diff: ");
+#endif
     // Propagating through network, we store all weights first and then bias.
     // we start with left most layer, and top most node or lowest to highest index
     for (unsigned int i = 1; i < numLayers; i++) {
       for (unsigned int j = 0; j < NN_def[i]; j++) {
         for (unsigned int k = 0; k < L[i].Neu[j].numInput; k++) {
+#if DEBUG_WEIGHTS
+          Serial.print(L[i].Neu[j].W[k] - WeightBiasPtr[ptrCount]);
+          Serial.print(" ");
+#endif
           L[i].Neu[j].W[k] = (WeightBiasPtr[ptrCount] + L[i].Neu[j].W[k] ) / 2;
           WeightBiasPtr[ptrCount] = L[i].Neu[j].W[k];
           ptrCount += 1;
@@ -409,6 +416,9 @@ void packUnpackVector(int Type)
         ptrCount += 1;
       }
     }
+#if DEBUG_WEIGHTS
+          Serial.println(" ");
+#endif
   }
 }
 
