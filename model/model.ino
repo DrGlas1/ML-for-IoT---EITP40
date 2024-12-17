@@ -14,7 +14,7 @@ extern const int first_layer_input_cnt;
 extern const int classes_cnt;
 
 /* ------- CONFIG ------- */
-#define DEVICE_TYPE WORKER // Which device is being exported: LEADER or WORKER?
+#define DEVICE_TYPE LEADER // Which device is being exported: LEADER or WORKER?
 #define DEBUG 0
 
 #define USE_BIASED_DATASETS 1
@@ -31,9 +31,9 @@ static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 #define DATA_TYPE_FLOAT  // Valid values:  DATA_TYPE_DOUBLE , DATA_TYPE_FLOAT
 
 #if USE_BIASED_DATASETS && DEVICE_TYPE == LEADER
-#include "online_data_5.h"  
+#include "online_data_7.h"  
 #else
-#include "online_data_6.h"
+#include "online_data_8.h"
 #endif
     
 #include "NN_functions.h"
