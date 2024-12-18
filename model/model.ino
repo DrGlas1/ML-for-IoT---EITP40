@@ -17,7 +17,7 @@ extern const int classes_cnt;
 #define BLE_NBR_WEIGHTS 12
 
 #define LEARNING_RATE 0.01
-#define EPOCH 50 
+#define EPOCH 20 
 
 static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 
