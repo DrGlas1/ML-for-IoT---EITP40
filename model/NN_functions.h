@@ -306,7 +306,7 @@ void printAccuracy()
   }
 
   Accuracy = correctCount * 1.0 / numValData;
-  Serial.print("Validation Accuracy:\t\t");
+  Serial.print("Validation Accuracy:\t");
   Serial.println(Accuracy);
 
   correctCount = 0;

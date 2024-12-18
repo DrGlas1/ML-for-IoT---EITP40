@@ -46,12 +46,12 @@ void destroy() {
 
 #if DEVICE_TYPE == CENTRAL
 void aggregate_weights() {
-  Serial.println("Accuracy before aggregation:");
+  Serial.println("BEFORE AGGREGATION");
   printAccuracy();
 
   packUnpackVector(AVERAGE);
 
-  Serial.println("Accuracy after aggregation:");
+  Serial.println("AFTER AGGREGATION");
   printAccuracy();
 }
 #endif
@@ -68,7 +68,7 @@ void do_training() {
   printAccuracy();
 #endif
 
-  Serial.print("Epoch count (training count): ");
+  Serial.print("EPOCH: ");
   Serial.print(++iter_cnt);
   Serial.println();
 
