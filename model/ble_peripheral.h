@@ -8,7 +8,7 @@ BLEService weightsService(READ_UUID);
 BLECharacteristic readCharacteristic(READ_UUID, BLERead | BLEIndicate, sizeof(bleData));
 BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
 
-inline void store_incoming_weights() {
+void store_incoming_weights() {
     memcpy(dyn_weights + bleData.batch_id * BLE_NBR_WEIGHTS, bleData.w,
            BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
 }

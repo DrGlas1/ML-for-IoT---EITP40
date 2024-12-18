@@ -7,13 +7,15 @@
 #define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
 #define FINAL_ITER NBR_BATCHES_ITER - 1
 
-#define SETUP_TURN -1
-#define CENTRAL_TURN 1
-#define PERIPHERAL_TURN 0
+enum Turn {
+    SETUP_TURN,
+    CENTRAL_TURN,
+    PERIPHERAL_TURN
+};
 
 typedef struct __attribute__( ( packed ) )
 {
-  int8_t turn;
+  enum Turn turn;
   uint8_t batch_id;
   float w[BLE_NBR_WEIGHTS];
 } ble_data_t;
