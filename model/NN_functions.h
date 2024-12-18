@@ -5,15 +5,8 @@
 
 
 
-#ifdef DATA_TYPE_FLOAT 
-  #define DATA_TYPE float
-  #define EXP_LIMIT 78.0  // limit 88.xx but we need to factor in accumulation for softmax
-  #define EXP(a) expl(a)
-#else
-  #define DATA_TYPE double
-  #define EXP_LIMIT 699.0 // limit is 709.xx but we need to factor in accumulation for softmax
-  #define EXP(a) exp(a)
-#endif
+#define EXP_LIMIT 78.0  // limit 88.xx but we need to factor in accumulation for softmax
+#define EXP(a) expl(a)
 
 #define IN_VEC_SIZE first_layer_input_cnt
 #define OUT_VEC_SIZE classes_cnt
@@ -28,11 +21,11 @@ size_t numLayers = sizeof(NN_def) / sizeof(NN_def[0]);
 // size of the input to NN
 
 // dummy input for testing
-DATA_TYPE input[IN_VEC_SIZE];
+float input[IN_VEC_SIZE];
 
 // dummy output for testing
-DATA_TYPE hat_y[OUT_VEC_SIZE];    // target output
-DATA_TYPE y[OUT_VEC_SIZE];        // output after forward propagation
+float hat_y[OUT_VEC_SIZE];    // target output
+float y[OUT_VEC_SIZE];        // output after forward propagation
 
 
 // creating array index to randomnize order of training data
@@ -41,14 +34,14 @@ int indxArray[train_data_cnt];
 // Convention: Refer to 
 typedef struct neuron_t {
 	int numInput;
-	DATA_TYPE* W;
-	DATA_TYPE B;
-	DATA_TYPE X;
+	float* W;
+	float B;
+	float X;
 
 	// For back propagation, convention, dA means dL/dA or partial derivative of Loss over Accumulative output
-	DATA_TYPE* dW;
-	DATA_TYPE dA;
-	DATA_TYPE dB;
+	float* dW;
+	float dA;
+	float dB;
 
 } neuron;
 
@@ -61,11 +54,11 @@ typedef struct layer_t {
 layer* L = NULL;
 
 // Weights written to here will be sent/received via bluetooth. 
-DATA_TYPE* WeightBiasPtr = NULL;
+float* WeightBiasPtr = NULL;
 
 // Equation (8)
-DATA_TYPE AccFunction (int layerIndx, int nodeIndx) {
-	DATA_TYPE A = 0;
+float AccFunction (int layerIndx, int nodeIndx) {
+	float A = 0;
 
 	for (int k = 0; k < NN_def[layerIndx - 1]; k++) {
 
@@ -97,8 +90,8 @@ neuron createNeuron(int numInput) {
 
 	N1.B = fRAND;
 	N1.numInput = numInput;
-	N1.W = (DATA_TYPE*)calloc(numInput, sizeof(DATA_TYPE));
-	N1.dW = (DATA_TYPE*)calloc(numInput, sizeof(DATA_TYPE));
+	N1.W = (float*)calloc(numInput, sizeof(float));
+	N1.dW = (float*)calloc(numInput, sizeof(float));
 	// initializing values of W to rand and dW to 0
 	int Sum = 0;
 	for (int i = 0; i < numInput; i++) {
@@ -142,9 +135,9 @@ void createNetwork() {
 
 
 // this function is to calculate dA
-DATA_TYPE dLossCalc( int layerIndx, int nodeIndx) {
+float dLossCalc( int layerIndx, int nodeIndx) {
 
-	DATA_TYPE Sum = 0;
+	float Sum = 0;
 	int outputSize = NN_def[numLayers - 1];
 	// for the last layer, we use complex computation
 	if (layerIndx == numLayers - 1) {	
@@ -163,7 +156,7 @@ DATA_TYPE dLossCalc( int layerIndx, int nodeIndx) {
 
 void forwardProp() {
 	
-	DATA_TYPE Fsum = 0;
+	float Fsum = 0;
 	int maxIndx = 0;
 	// Propagating through network
 	for (int i = 0; i < numLayers; i++) {
@@ -190,7 +183,7 @@ void forwardProp() {
 	}
 
   // performing exp but ensuring we dont exceed 709 or 88 in any terms 
-	DATA_TYPE norm = abs(y[maxIndx]);
+	float norm = abs(y[maxIndx]);
 	if (norm > EXP_LIMIT) {
 #if DEBUG
 		Serial.print("Max limit exceeded for exp:");
@@ -398,7 +391,7 @@ void packUnpackVector(int Type)
 }
 
 // Called from main in setup-function
-void setupNN(DATA_TYPE* wbptr) {
+void setupNN(float* wbptr) {
   WeightBiasPtr = wbptr;
   createNetwork();
 }

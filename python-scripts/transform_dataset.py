@@ -10,12 +10,12 @@ import pillow_avif
 
 
 input_folder = "../dataset"
-output_folder = os.path.join(input_folder, "../dataset/cybertruck_and_optimus")
-label_file = os.path.join(input_folder, "../dataset/cybertruck_and_optimus.csv")
+output_folder = os.path.join(input_folder, "../dataset/la_ferrari_and_optimus")
+label_file = os.path.join(input_folder, "../dataset/la_ferrari_and_optimus.csv")
 target_size = (176, 144)
 
 os.makedirs(output_folder, exist_ok=True)
-class_1_folder = os.path.join(input_folder, "cybertruck")
+class_1_folder = os.path.join(input_folder, "la_ferrari")
 class_2_folder = os.path.join(input_folder, "optimus")
 
 class_1_images = [os.path.join(class_1_folder, f) for f in os.listdir(class_1_folder)]
@@ -26,14 +26,15 @@ mixed_dataset_images = [img for pair in mixed_dataset_images for img in pair]
 
 random.shuffle(mixed_dataset_images)
 
-labels = [2 if img.startswith(class_1_folder) else 1 for img in mixed_dataset_images]
+labels = [0 if img.startswith(class_1_folder) else 1 for img in mixed_dataset_images]
 
 label_data = []
 for i, img_path in enumerate(mixed_dataset_images):
     image = Image.open(img_path)
     image = image.convert("RGB")
-    image = np.array(image)
-    resized_image = cv2.resize(image, target_size)
+    image_np = np.array(image)  # Convert to numpy array
+    grayscale_image = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)  # Use COLOR_RGB2GRAY since image was in RGB mode
+    resized_image = cv2.resize(grayscale_image, target_size)
     normalized_image = resized_image / 255.0
 
     output_filename = f"{i:05d}.png"

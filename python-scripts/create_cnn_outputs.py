@@ -8,7 +8,7 @@ from tensorflow import keras
 
 image_folder = "../dataset/la_ferrari_and_optimus"
 label_file = "../dataset/la_ferrari_and_optimus.csv"
-output_file = "../model/online_data_7.h"
+output_file = "../model/la_ferrari_and_optimus.h"
 IMAGE_SIZE = (176, 144)
 TRAIN_RATIO = 0.7
 VAL_RATIO = 0.2
