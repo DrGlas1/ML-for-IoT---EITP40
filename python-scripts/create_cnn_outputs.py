@@ -6,10 +6,10 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from tensorflow import keras
 
-image_folder = "../dataset/online_images_4"
-label_file = "../dataset/online_labels_4.csv"
-output_file = "../model/online_data_4.h"
-IMAGE_SIZE = (144, 172)
+image_folder = "../dataset/la_ferrari_and_optimus"
+label_file = "../dataset/la_ferrari_and_optimus.csv"
+output_file = "../model/online_data_7.h"
+IMAGE_SIZE = (176, 144)
 TRAIN_RATIO = 0.7
 VAL_RATIO = 0.2
 TEST_RATIO = 0.1
@@ -55,31 +55,31 @@ def write_to_h_file(output_file, train_data, train_labels, val_data, val_labels,
         f.write(f"const int test_data_cnt = {len(test_labels)};\n")
         f.write(f"const int classes_cnt = {len(set(train_labels))};\n\n")
 
-        f.write("const int train_labels[] = {\n\t")
+        f.write("const int train_labels[train_data_cnt] = {\n\t")
         f.write(", ".join(map(str, train_labels)))
         f.write("\n};\n")
 
-        f.write("const int validation_labels[] = {\n\t")
+        f.write("const int validation_labels[validation_data_cnt] = {\n\t")
         f.write(", ".join(map(str, val_labels)))
         f.write("\n};\n")
 
-        f.write("const int test_labels[] = {\n\t")
+        f.write("const int test_labels[test_data_cnt] = {\n\t")
         f.write(", ".join(map(str, test_labels)))
         f.write("\n};\n")
 
-        f.write(f"const float train_data[{len(train_labels)}][{size}] = {{\n")
+        f.write(f"const float train_data[train_data_cnt][first_layer_input_cnt] = {{\n")
         for row in train_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")
         f.write("};\n")
 
-        f.write(f"const float validation_data[{len(val_labels)}][{size}] = {{\n")
+        f.write(f"const float validation_data[validation_data_cnt][first_layer_input_cnt] = {{\n")
         for row in val_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")
         f.write("};\n\n")
 
-        f.write(f"const float test_data[{len(test_labels)}][{size}] = {{\n")
+        f.write(f"const float test_data[test_data_cnt][first_layer_input_cnt] = {{\n")
         for row in test_data:
             row_str = ", ".join(map(lambda x: f"{x:.6f}", row))
             f.write(f"  {{{row_str}}},\n")
@@ -129,6 +129,7 @@ def main():
     cnn_pred_train = model.predict(train_data)
     cnn_pred_validation = model.predict(val_data)
     cnn_pred_test = model.predict(test_data)
+
     write_to_h_file(output_file, cnn_pred_train, train_labels, cnn_pred_validation, val_labels,
                     cnn_pred_test, test_labels, INPUT_SIZE)
 
