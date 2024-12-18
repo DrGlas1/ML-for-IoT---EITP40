@@ -8,7 +8,7 @@ BLECharacteristic readCharacteristic;
 BLECharacteristic writeCharacteristic;
 
 void send_iteration_data() {
-    bleData.turn = PERIPHERAL_TURN;
+    bleData.turn = RUN;
     for (int i = 0; i < NBR_BATCHES_ITER; i++) {
         bleData.batch_id = i;
         memcpy(bleData.w, dyn_weights + i * BLE_NBR_WEIGHTS,
@@ -27,7 +27,7 @@ void loopPeripheral() {
         if (readCharacteristic.valueUpdated()) {
             readCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
 
-            if (bleData.turn == CENTRAL_TURN) {
+            if (bleData.turn == RUN) {
                 store_incoming_weigths();
                 if (bleData.batch_id == FINAL_ITER) {
                     do_training();
@@ -66,7 +66,7 @@ void connectPeripheral() {
     }
 
     // Inform peripheral, connection is established
-    bleData.turn = SETUP_TURN;
+    bleData.turn = SETUP;
     writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
 
     // Continues until disconnect

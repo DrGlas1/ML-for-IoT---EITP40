@@ -48,7 +48,7 @@ void setupBLE(float *wbptr) {
 }
 
 void send_iteration_data() {
-    bleData.turn = CENTRAL_TURN;
+    bleData.turn = RUN;
 
     for (int i = 0; i < NBR_BATCHES_ITER; i++) {
         bleData.batch_id = i;
@@ -65,12 +65,12 @@ void loopBLE() {
     if (writeCharacteristic.written()) {
         writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
 
-        if (bleData.turn == SETUP_TURN) {
+        if (bleData.turn == SETUP) {
             send_iteration_data();
             return;
         }
 
-        if (bleData.turn == PERIPHERAL_TURN) {
+        if (bleData.turn == RUN) {
             store_incoming_weights();
 
             if (bleData.batch_id == FINAL_ITER) {
