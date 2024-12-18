@@ -11,7 +11,7 @@ int weights_bias_cnt = 0;
 extern const int first_layer_input_cnt;
 extern const int classes_cnt;
 
-#define DEVICE_TYPE CENTRAL // Which device is being exported: CENTRAL or PERIPHERAL?
+#define DEVICE_TYPE PERIPHERAL // Which device is being exported: CENTRAL or PERIPHERAL?
 
 #define DYN_NBR_WEIGHTS weights_bias_cnt // MUST BE MULTIPLE OF BLE_NBR_WEIGHTS!
 #define BLE_NBR_WEIGHTS 12
@@ -20,8 +20,6 @@ extern const int classes_cnt;
 #define EPOCH 50 
 
 static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
-
-#define DATA_TYPE_FLOAT  // Valid values:  DATA_TYPE_DOUBLE , DATA_TYPE_FLOAT
 
 #if DEVICE_TYPE == CENTRAL
 #include "online_data_5.h"  
@@ -106,7 +104,7 @@ void setup() {
   Serial.print("The total number of weights and bias used for BLE: ");
   Serial.println(weights_bias_cnt);
 
-  float* WeightBiasPtr = (float*) calloc(weights_bias_cnt, sizeof(DATA_TYPE));
+  float* WeightBiasPtr = (float*) calloc(weights_bias_cnt, sizeof(float));
 
   setupNN(WeightBiasPtr);
   printAccuracy();
