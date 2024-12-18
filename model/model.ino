@@ -22,9 +22,9 @@ extern const int classes_cnt;
 static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 
 #if DEVICE_TYPE == CENTRAL
-#include "online_data_7.h"
+#include "la_ferrari_and_optimus.h"
 #else
-#include "online_data_8.h"
+#include "cybertruck_and_optimus.h"
 #endif
     
 #include "NN_functions.h"
