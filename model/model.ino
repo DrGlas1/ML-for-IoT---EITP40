@@ -32,11 +32,9 @@ static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 #include "NN_functions.h"
 
 #if DEVICE_TYPE == CENTRAL
-#define NBR_CENTRALS 1 // Config
 #include "BLE_peripheral.h"
 
 #elif DEVICE_TYPE == PERIPHERAL
-#define CENTRAL_ID 1 // Config
 #include "BLE_central.h"
 #endif
 

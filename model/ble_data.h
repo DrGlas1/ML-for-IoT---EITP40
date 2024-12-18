@@ -5,6 +5,11 @@
 #define WRITE_UUID "0cc92356-edf6-4828-816e-4cfa94004a85"
 
 #define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
+#define FINAL_ITER NBR_BATCHES_ITER - 1
+
+#define SETUP_TURN -1
+#define CENTRAL_TURN 1
+#define PERIPHERAL_TURN 0
 
 typedef struct __attribute__( ( packed ) )
 {

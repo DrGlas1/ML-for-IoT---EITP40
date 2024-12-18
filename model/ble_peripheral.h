@@ -11,7 +11,7 @@ BLECharacteristic writeCharacteristic(WRITE_UUID, BLEWrite, sizeof(bleData));
 inline void store_incoming_weights() {
   memcpy(dyn_weights + bleData.batch_id * BLE_NBR_WEIGHTS, bleData.w, BLE_NBR_WEIGHTS * sizeof(bleData.w[0]));
 
-  if (bleData.batch_id == NBR_BATCHES_ITER - 1) {
+  if (bleData.batch_id == FINAL_ITER) {
     aggregate_weights();
   }
 }
@@ -54,11 +54,8 @@ void setupBLE(float* wbptr) {
   do_training();
 }
 
-int turn;
-
 void send_iteration_data() {
-  turn = 1;
-  bleData.turn = turn;
+  bleData.turn = CENTRAL_TURN;
 
   for (int i = 0; i < NBR_BATCHES_ITER; i++) {
     bleData.batch_id = i;
@@ -74,25 +71,22 @@ void loopBLE() {
   if (writeCharacteristic.written()) {
     int8_t receivedTurn = writeCharacteristic[0];
 
-    if (receivedTurn == -1) {
+    if (receivedTurn == SETUP_TURN) {
       send_iteration_data();
       return;
     }
 
-    if (receivedTurn == 0) {
+    if (receivedTurn == PERIPHERAL_TURN) {
       uint8_t batch_id = writeCharacteristic[1];
 
 
       writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
       store_incoming_weights();
 
-      if (turn == NBR_CENTRALS && batch_id == NBR_BATCHES_ITER - 1) {
+      if (batch_id == FINAL_ITER) {
         send_iteration_data();
         do_training();
         
-      } else if (bleData.batch_id == NBR_BATCHES_ITER - 1 ) {
-        bleData.turn = ++turn;
-        readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
       }
     }
   }
