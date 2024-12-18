@@ -1,18 +1,6 @@
 #include <ArduinoBLE.h>
+#include "ble_data.h"
 
-#define NBR_BATCHES_ITER (DYN_NBR_WEIGHTS / BLE_NBR_WEIGHTS)
-
-void do_training();
-
-typedef struct __attribute__( ( packed ) )
-{
-  int8_t turn;
-  uint8_t batch_id;
-  float w[BLE_NBR_WEIGHTS];
-} ble_data_t;
-
-float* dyn_weights;
-ble_data_t bleData;
 BLEDevice peripheral;
 
 BLECharacteristic readCharacteristic;
@@ -62,8 +50,8 @@ void connectPeripheral() {
   }
 
   // retrieve the Weights characteristics
-  readCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1214");
-  writeCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1215");
+  readCharacteristic = peripheral.characteristic(READ_UUID);
+  writeCharacteristic = peripheral.characteristic(WRITE_UUID);
 
   if (!readCharacteristic || !writeCharacteristic) {
     peripheral.disconnect();
@@ -93,7 +81,7 @@ void setupBLE(float* wbptr) {
 #endif
 
   // start scanning for peripherals
-  BLE.scanForUuid("19b10000-e8f2-537e-4f6c-d104768a1214");
+  BLE.scanForUuid(READ_UUID);
 }
 
 void loopBLE() {
@@ -108,6 +96,6 @@ void loopBLE() {
 
     connectPeripheral();
 
-    BLE.scanForUuid("19b10000-e8f2-537e-4f6c-d104768a1214");
+    BLE.scanForUuid(READ_UUID);
   }
 }
