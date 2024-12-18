@@ -17,7 +17,7 @@ extern const int classes_cnt;
 #define BLE_NBR_WEIGHTS 12
 
 #define LEARNING_RATE 0.01
-#define EPOCH 50 
+#define EPOCH 20 
 
 static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 
@@ -46,12 +46,12 @@ void destroy() {
 
 #if DEVICE_TYPE == CENTRAL
 void aggregate_weights() {
-  Serial.println("Accuracy before aggregation:");
+  Serial.println("BEFORE AGGREGATION");
   printAccuracy();
 
   packUnpackVector(AVERAGE);
 
-  Serial.println("Accuracy after aggregation:");
+  Serial.println("AFTER AGGREGATION");
   printAccuracy();
 }
 #endif
@@ -68,7 +68,7 @@ void do_training() {
   printAccuracy();
 #endif
 
-  Serial.print("Epoch count (training count): ");
+  Serial.print("EPOCH: ");
   Serial.print(++iter_cnt);
   Serial.println();
 

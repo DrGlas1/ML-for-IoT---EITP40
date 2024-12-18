@@ -8,9 +8,8 @@
 #define FINAL_ITER NBR_BATCHES_ITER - 1
 
 enum Turn {
-    SETUP_TURN,
-    CENTRAL_TURN,
-    PERIPHERAL_TURN
+    SETUP,
+    RUN
 };
 
 typedef struct __attribute__( ( packed ) )
