@@ -11,7 +11,7 @@ int weights_bias_cnt = 0;
 extern const int first_layer_input_cnt;
 extern const int classes_cnt;
 
-#define DEVICE_TYPE PERIPHERAL // Which device is being exported: CENTRAL or PERIPHERAL?
+#define DEVICE_TYPE CENTRAL // Which device is being exported: CENTRAL or PERIPHERAL?
 
 #define DYN_NBR_WEIGHTS weights_bias_cnt // MUST BE MULTIPLE OF BLE_NBR_WEIGHTS!
 #define BLE_NBR_WEIGHTS 12
@@ -21,7 +21,7 @@ extern const int classes_cnt;
 
 static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
 
-#if DEVICE_TYPE == CENTRAL
+#if DEVICE_TYPE == PERIPHERAL
 #include "la_ferrari_and_optimus.h"
 #else
 #include "cybertruck_and_optimus.h"
@@ -29,10 +29,9 @@ static const int NN_def[] = {first_layer_input_cnt, 20, classes_cnt};
     
 #include "NN_functions.h"
 
-#if DEVICE_TYPE == CENTRAL
+#if DEVICE_TYPE == PERIPHERAL
 #include "BLE_peripheral.h"
-
-#elif DEVICE_TYPE == PERIPHERAL
+#else
 #include "BLE_central.h"
 #endif
 
@@ -44,7 +43,7 @@ void destroy() {
   while (1) ;
 }
 
-#if DEVICE_TYPE == CENTRAL
+#if DEVICE_TYPE == PERIPHERAL
 void aggregate_weights() {
   Serial.println("BEFORE AGGREGATION");
   printAccuracy();
@@ -58,11 +57,11 @@ void aggregate_weights() {
 
 
 void do_training() {
-#if DEVICE_TYPE == CENTRAL
+#if DEVICE_TYPE == PERIPHERAL
   if (iter_cnt >= EPOCH) destroy();
 #endif
 
-#if DEVICE_TYPE == PERIPHERAL
+#if DEVICE_TYPE == CENTRAL
   packUnpackVector(UNPACK);
   Serial.println("Accuracy using incoming weights:");
   printAccuracy();
@@ -81,7 +80,7 @@ void do_training() {
   }
 
   forwardProp();
-#if DEVICE_TYPE == PERIPHERAL
+#if DEVICE_TYPE == CENTRAL
   packUnpackVector(PACK);
   Serial.println("Accuracy after local training:");
   printAccuracy();
