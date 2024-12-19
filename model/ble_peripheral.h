@@ -19,26 +19,22 @@ void DisconnectHandler(BLEDevice central) { BLE.advertise(); }
 
 void setupBLE(float *wbptr) {
     dyn_weights = wbptr;
-    // initialize the BLE hardware
-    // begin initialization
+
     if (!BLE.begin()) {
         Serial.println("starting BLE failed!");
         while (1);
     }
     BLE.setEventHandler(BLEConnected, ConnectHandler);
     BLE.setEventHandler(BLEDisconnected, DisconnectHandler);
-    // set advertised local name and service UUID:
+
     BLE.setLocalName("MLLeader");
     BLE.setAdvertisedService(weightsService);
 
-    // add the characteristic to the service
     weightsService.addCharacteristic(readCharacteristic);
     weightsService.addCharacteristic(writeCharacteristic);
 
-    // add service
     BLE.addService(weightsService);
 
-    // set the initial value for the characeristic:
     writeCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
     readCharacteristic.writeValue((byte *)&bleData, sizeof(bleData));
 
@@ -66,6 +62,7 @@ void loopBLE() {
         writeCharacteristic.readValue((byte *)&bleData, sizeof(bleData));
 
         if (bleData.turn == SETUP) {
+            do_training();
             send_iteration_data();
             return;
         }
@@ -75,8 +72,8 @@ void loopBLE() {
 
             if (bleData.batch_id == FINAL_ITER) {
                 aggregate_weights();
-                send_iteration_data();
                 do_training();
+                send_iteration_data();
             }
         }
     }
